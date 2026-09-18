@@ -50,7 +50,7 @@ function TensorRow({ title, channels, L, onHover, activeHighlights = [], renderC
 export function Conv1dVisualizer() {
   const [config, setConfig] = useState({
     L_in: 7,
-    in_channels: 2, out_channels: 2,
+    in_channels: 2, out_channels: 1,
     kernel_size: 3,
     stride: 1, padding: 1, dilation: 1, groups: 1,
     padding_mode: 'zeros', bias: true

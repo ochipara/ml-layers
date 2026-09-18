@@ -7,7 +7,7 @@ import { MathBreakdown } from '../components/MathBreakdown';
 export function Conv2dVisualizer() {
   const [config, setConfig] = useState({
     H_in: 5, W_in: 5,
-    in_channels: 2, out_channels: 2,
+    in_channels: 1, out_channels: 2,
     kernel_size: 3,
     stride: 1, padding: 1, dilation: 1, groups: 1,
     padding_mode: 'zeros', bias: true
