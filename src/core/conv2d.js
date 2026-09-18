@@ -41,11 +41,11 @@ export function getPaddingValue(idx, inDim, pad, mode) {
 }
 
 export function getInputValue(c, h, w) {
-  return ((h + w) % 2 === 0) ? 1 : -1;
+  return ((c + h + w) % 2 === 0) ? 1 : -1;
 }
 
 export function getWeightValue(cout, cin_group, h, w) {
-  return ((h + w) % 2 === 0) ? 1 : -1;
+  return ((cin_group + h + w) % 2 === 0) ? 1 : -1;
 }
 
 export function getBiasValue(cout) {

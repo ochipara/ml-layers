@@ -153,18 +153,25 @@ export function Conv1dVisualizer() {
        }
     }
 
-    let className = isHighlighted ? 'bg-yellow-300 border-yellow-500 font-bold' : (isVirtual ? 'bg-blue-50 border-blue-200 text-blue-400' : 'bg-white border-gray-200');
+    let baseClass = isVirtual ? 'bg-blue-50 border-blue-200 text-blue-400' :
+                    (val === 1 ? 'bg-green-200 border-green-300' :
+                    (val === -1 ? 'bg-red-200 border-red-300' : 'bg-white border-gray-200'));
+
+    let className = isHighlighted ? 'bg-yellow-300 border-yellow-500 font-bold scale-110 z-10' : baseClass;
     return { content: val, className };
   };
 
   const renderWeightCell = (cout, cin_group, k, isHighlighted) => {
     const val = getWeightValue1d(cout, cin_group, k);
-    return { content: val, className: isHighlighted ? 'bg-orange-300 border-orange-500 font-bold' : 'bg-orange-50 border-orange-200' };
+    let baseClass = val === 1 ? 'bg-green-200 border-green-300' :
+                    (val === -1 ? 'bg-red-200 border-red-300' : 'bg-orange-50 border-orange-200');
+    return { content: val, className: isHighlighted ? 'bg-yellow-300 border-yellow-500 font-bold scale-110 z-10' : baseClass };
   };
 
   const renderOutputCell = (c, l, isHighlighted) => {
     const deps = model.getOutputDependencies(c, l);
-    return { content: deps.result, className: isHighlighted ? 'bg-green-300 border-green-500 font-bold' : 'bg-green-50 border-green-200' };
+    let baseClass = 'bg-gray-100 border-gray-300';
+    return { content: deps.result, className: isHighlighted ? 'bg-yellow-300 border-yellow-500 font-bold scale-110 z-10' : baseClass };
   };
 
   return (
