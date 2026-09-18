@@ -10,13 +10,13 @@ function TensorRow({ title, channels, L, onHover, activeHighlights = [], renderC
 
   return (
     <div className="flex flex-col border border-gray-300 rounded p-4 bg-white shadow-sm overflow-auto">
-      <h3 className="font-bold mb-4 border-b pb-2">{title} ({channels}x{L})</h3>
+      <h3 className="font-bold mb-4 border-b pb-2 text-center">{title} ({channels}x{L})</h3>
 
       <div className="flex flex-col gap-4" onMouseLeave={() => onHover(null)}>
         {channelsArray.map(c => (
           <div key={c} className="flex flex-row gap-2 items-center">
-             <span className="text-xs font-bold text-gray-500 w-16">Ch {c}</span>
-             <div className="flex gap-1 bg-gray-100 p-1 rounded">
+             <span className="text-xs font-bold text-gray-500 w-16 text-right">Ch {c}</span>
+             <div className="flex gap-1 bg-gray-100 p-1 rounded w-max">
                {Array.from({ length: L }).map((_, l) => {
                  const isHighlighted = activeHighlights.some(hl => hl.c === c && hl.l === l);
 
@@ -49,7 +49,7 @@ function TensorRow({ title, channels, L, onHover, activeHighlights = [], renderC
 
 export function Conv1dVisualizer() {
   const [config, setConfig] = useState({
-    L_in: 7,
+    L_in: 16,
     in_channels: 2, out_channels: 1,
     kernel_size: 3,
     stride: 1, padding: 1, dilation: 1, groups: 1,
@@ -178,7 +178,7 @@ export function Conv1dVisualizer() {
     <div className="p-8 max-w-7xl mx-auto flex flex-col gap-8">
       <ConfigPanel1d config={config} setConfig={setConfig} error={error} />
 
-      <div className="flex flex-row gap-8 items-start">
+      <div className="flex flex-row gap-8 items-center justify-center">
         <TensorRow
           title="Padded Input X"
           channels={config.in_channels}

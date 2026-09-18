@@ -163,7 +163,7 @@ export function Conv2dVisualizer() {
     <div className="p-8 max-w-7xl mx-auto flex flex-col gap-8">
       <ConfigPanel config={config} setConfig={setConfig} error={error} />
 
-      <div className="flex flex-row gap-8 items-start">
+      <div className="flex flex-row gap-8 items-center justify-center">
         <TensorGrid
           title="Padded Input X"
           channels={config.in_channels}

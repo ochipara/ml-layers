@@ -5,14 +5,14 @@ export function TensorGrid({ title, channels, H, W, getValue, onHover, activeHig
 
   return (
     <div className="flex flex-col border border-gray-300 rounded p-4 bg-white shadow-sm overflow-auto">
-      <h3 className="font-bold mb-4 border-b pb-2">{title} ({channels}x{H}x{W})</h3>
+      <h3 className="font-bold mb-4 border-b pb-2 text-center">{title} ({channels}x{H}x{W})</h3>
 
       <div className="flex flex-col gap-6" onMouseLeave={() => onHover(null)}>
         {channelsArray.map(c => (
-          <div key={c} className="flex flex-col gap-1 items-start">
+          <div key={c} className="flex flex-col gap-1 items-start self-center">
              <span className="text-xs font-bold text-gray-500 mb-1">Channel {c}</span>
              <div
-               className="grid gap-1 bg-gray-100 p-1 rounded"
+               className="grid gap-1 bg-gray-100 p-1 rounded w-max"
                style={{ gridTemplateColumns: `repeat(${W}, minmax(0, 1fr))` }}
              >
                 {Array.from({ length: H }).map((_, h) =>
