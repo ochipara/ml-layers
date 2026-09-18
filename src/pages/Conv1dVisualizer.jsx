@@ -3,6 +3,7 @@ import { Conv1dModel, getInputValue1d, getWeightValue1d } from '../core/conv1d';
 import { getPaddingValue } from '../core/conv2d';
 import { ConfigPanel1d } from '../components/conv1d/ConfigPanel1d';
 import { MathBreakdown } from '../components/MathBreakdown';
+import { TensorGrid } from '../components/conv2d/TensorGrid';
 
 function TensorRow({ title, channels, L, onHover, activeHighlights = [], renderCell }) {
   const channelsArray = Array.from({ length: channels }, (_, i) => i);
@@ -80,7 +81,7 @@ export function Conv1dVisualizer() {
       deps: {
           ...deps,
           inputs: deps.inputs.map(d => ({ ...d, h: 0, w: d.l })),
-          weights: deps.weights.map(d => ({ ...d, kh: 0, kw: d.k }))
+          weights: deps.weights.map(d => ({ ...d, kh: d.cin_group, kw: d.k }))
       }
     });
   };
@@ -97,10 +98,10 @@ export function Conv1dVisualizer() {
 
   const handleHoverWeight = (pos) => {
     if (!pos || !model) return setHoverState(null);
-    const deps = model.getWeightDependencies(pos.c, pos.cin_group, pos.l);
+    const deps = model.getWeightDependencies(pos.c, pos.h, pos.w);
     setHoverState({
       type: 'weight',
-      cout: pos.c, cin_group: pos.cin_group, kh: 0, kw: pos.l,
+      cout: pos.c, cin_group: pos.h, kh: pos.h, kw: pos.w,
       deps: deps.map(d => ({ ...d, hout: 0, wout: d.lout, input: { ...d.input, h: 0, w: d.input.l } }))
     });
   };
@@ -123,18 +124,17 @@ export function Conv1dVisualizer() {
   if (hoverState?.type === 'output') {
     outputHighlights = [{ c: hoverState.cout, l: hoverState.wout }];
     inputHighlights = hoverState.deps.inputs.map(d => ({ c: d.c, l: d.w + p }));
-    weightHighlights = hoverState.deps.weights.map(d => ({ c: d.cout, cin_group: d.cin_group, l: d.kw }));
+    weightHighlights = hoverState.deps.weights.map(d => ({ c: d.cout, h: d.cin_group, w: d.k }));
   } else if (hoverState?.type === 'input') {
     inputHighlights = [{ c: hoverState.cin, l: hoverState.win + p }];
     outputHighlights = hoverState.deps.map(d => ({ c: d.cout, l: d.wout }));
   } else if (hoverState?.type === 'weight') {
-    weightHighlights = [{ c: hoverState.cout, cin_group: hoverState.cin_group, l: hoverState.kw }];
+    weightHighlights = [{ c: hoverState.cout, h: hoverState.cin_group, w: hoverState.kw }];
     outputHighlights = hoverState.deps.map(d => ({ c: d.cout, l: d.wout }));
     inputHighlights = hoverState.deps.map(d => ({ c: d.input.c, l: d.input.w + p }));
   }
 
   const cin_per_group = config.in_channels / config.groups;
-  const weightChannels = config.out_channels * cin_per_group;
 
   const renderInputCell = (c, l, isHighlighted) => {
     const unpadded_l = l - p;
@@ -157,10 +157,8 @@ export function Conv1dVisualizer() {
     return { content: val, className };
   };
 
-  const renderWeightCell = (c_ui, l, isHighlighted) => {
-    const cout = Math.floor(c_ui / cin_per_group);
-    const cin_group = c_ui % cin_per_group;
-    const val = getWeightValue1d(cout, cin_group, l);
+  const renderWeightCell = (cout, cin_group, k, isHighlighted) => {
+    const val = getWeightValue1d(cout, cin_group, k);
     return { content: val, className: isHighlighted ? 'bg-orange-300 border-orange-500 font-bold' : 'bg-orange-50 border-orange-200' };
   };
 
@@ -186,17 +184,12 @@ export function Conv1dVisualizer() {
           renderCell={renderInputCell}
         />
 
-        <TensorRow
-          title="Weights W (C_out x C_in_group)"
-          channels={weightChannels}
-          L={model.k}
-          onHover={(pos) => {
-             if (!pos) return handleHoverWeight(null);
-             const cout = Math.floor(pos.c / cin_per_group);
-             const cin_group = pos.c % cin_per_group;
-             handleHoverWeight({ c: cout, cin_group, l: pos.l });
-          }}
-          activeHighlights={weightHighlights.map(hl => ({ c: hl.c * cin_per_group + hl.cin_group, l: hl.l }))}
+        <TensorGrid
+          title="Weights W (C_in_group x Kernel_Size)"
+          channels={config.out_channels}
+          H={cin_per_group} W={model.k}
+          onHover={handleHoverWeight}
+          activeHighlights={weightHighlights}
           renderCell={renderWeightCell}
         />
 

@@ -5,7 +5,7 @@ export function getInputValue1d(c, l) {
 }
 
 export function getWeightValue1d(cout, cin_group, k) {
-  return ((cout + cin_group + k) % 2 === 0) ? 1 : -1;
+  return ((cin_group + k) % 2 === 0) ? 1 : -1;
 }
 
 export function getBiasValue1d(cout) {
