@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { AttentionModel, getInputValueAttention, getWeightValueAttention } from '../core/attention';
+import { AttentionModel } from '../core/attention';
 import { ConfigPanelAttention } from '../components/attention/ConfigPanelAttention';
 import { MatrixGrid } from '../components/attention/MatrixGrid';
 import { AttentionMathBreakdown } from '../components/attention/AttentionMathBreakdown';
@@ -52,41 +52,51 @@ export function AttentionVisualizer() {
       return '';
     }
 
-    // 1. Hover on X
+    // 1. Hover on X[r, c]
     if (type === 'X') {
       if (matrixType === 'X' && hoverState.r === r && hoverState.c === c) return 'bg-blue-300 border-blue-500 font-bold';
       if ((matrixType === 'Q' || matrixType === 'K' || matrixType === 'V') && r === hoverState.r) return 'bg-blue-100 border-blue-300';
+      if ((matrixType === 'S' || matrixType === 'A') && (r === hoverState.r || c === hoverState.r)) return 'bg-blue-100 border-blue-300';
+      if (matrixType === 'O' && r === hoverState.r) return 'bg-blue-100 border-blue-300';
     }
 
     // 2. Hover on Weights Wq, Wk, Wv
-    if (type === 'Wq' && matrixType === 'Wq' && hoverState.r === r && hoverState.c === c) return 'bg-purple-300 border-purple-500 font-bold';
-    if (type === 'Wk' && matrixType === 'Wk' && hoverState.r === r && hoverState.c === c) return 'bg-pink-300 border-pink-500 font-bold';
-    if (type === 'Wv' && matrixType === 'Wv' && hoverState.r === r && hoverState.c === c) return 'bg-emerald-300 border-emerald-500 font-bold';
-
-    if (type === 'Wq' && matrixType === 'Q' && c === hoverState.c) return 'bg-purple-100 border-purple-300';
-    if (type === 'Wk' && matrixType === 'K' && c === hoverState.c) return 'bg-pink-100 border-pink-300';
-    if (type === 'Wv' && matrixType === 'V' && c === hoverState.c) return 'bg-emerald-100 border-emerald-300';
+    if (type === 'Wq') {
+      if (matrixType === 'Wq' && hoverState.r === r && hoverState.c === c) return 'bg-purple-300 border-purple-500 font-bold';
+      if (matrixType === 'Q' && c === hoverState.c) return 'bg-purple-100 border-purple-300';
+      if (matrixType === 'S' || matrixType === 'A' || matrixType === 'O') return 'bg-purple-50 border-purple-200';
+    }
+    if (type === 'Wk') {
+      if (matrixType === 'Wk' && hoverState.r === r && hoverState.c === c) return 'bg-pink-300 border-pink-500 font-bold';
+      if (matrixType === 'K' && c === hoverState.c) return 'bg-pink-100 border-pink-300';
+      if (matrixType === 'S' || matrixType === 'A' || matrixType === 'O') return 'bg-pink-50 border-pink-200';
+    }
+    if (type === 'Wv') {
+      if (matrixType === 'Wv' && hoverState.r === r && hoverState.c === c) return 'bg-emerald-300 border-emerald-500 font-bold';
+      if (matrixType === 'V' && c === hoverState.c) return 'bg-emerald-100 border-emerald-300';
+      if (matrixType === 'O' && c === hoverState.c) return 'bg-emerald-100 border-emerald-300';
+    }
 
     // 3. Hover on Projections Q, K, V
     if (type === 'Q') {
       if (matrixType === 'Q' && hoverState.r === r && hoverState.c === c) return 'bg-purple-300 border-purple-500 font-bold';
       if (matrixType === 'X' && r === hoverState.r) return 'bg-blue-200 border-blue-400';
       if (matrixType === 'Wq' && c === hoverState.c) return 'bg-purple-200 border-purple-400';
-      if (matrixType === 'S' && r === hoverState.r) return 'bg-amber-100 border-amber-300';
+      if ((matrixType === 'S' || matrixType === 'A' || matrixType === 'O') && r === hoverState.r) return 'bg-purple-100 border-purple-300';
     }
 
     if (type === 'K') {
       if (matrixType === 'K' && hoverState.r === r && hoverState.c === c) return 'bg-pink-300 border-pink-500 font-bold';
       if (matrixType === 'X' && r === hoverState.r) return 'bg-blue-200 border-blue-400';
       if (matrixType === 'Wk' && c === hoverState.c) return 'bg-pink-200 border-pink-400';
-      if (matrixType === 'S' && c === hoverState.r) return 'bg-amber-100 border-amber-300';
+      if ((matrixType === 'S' || matrixType === 'A') && c === hoverState.r) return 'bg-pink-100 border-pink-300';
     }
 
     if (type === 'V') {
       if (matrixType === 'V' && hoverState.r === r && hoverState.c === c) return 'bg-emerald-300 border-emerald-500 font-bold';
       if (matrixType === 'X' && r === hoverState.r) return 'bg-blue-200 border-blue-400';
       if (matrixType === 'Wv' && c === hoverState.c) return 'bg-emerald-200 border-emerald-400';
-      if (matrixType === 'O' && c === hoverState.c) return 'bg-teal-100 border-teal-300';
+      if (matrixType === 'O' && c === hoverState.c) return 'bg-emerald-100 border-emerald-300';
     }
 
     // 4. Hover on Score Matrix S
@@ -95,6 +105,7 @@ export function AttentionVisualizer() {
       if (matrixType === 'Q' && r === hoverState.r) return 'bg-purple-200 border-purple-400';
       if (matrixType === 'K' && r === hoverState.c) return 'bg-pink-200 border-pink-400';
       if (matrixType === 'A' && r === hoverState.r && c === hoverState.c) return 'bg-indigo-200 border-indigo-400';
+      if (matrixType === 'O' && r === hoverState.r) return 'bg-teal-100 border-teal-300';
     }
 
     // 5. Hover on Attention Weight Matrix A
@@ -126,10 +137,10 @@ export function AttentionVisualizer() {
 
       {/* Section 1: Inputs & Weights */}
       <div className="flex flex-col gap-2">
-        <h2 className="text-lg font-bold text-gray-700 border-b pb-1">1. Input X and Weight Projections (Wq, Wk, Wv)</h2>
+        <h2 className="text-lg font-bold text-gray-700 border-b pb-1">1. Input X and Weight Projections (W_q, W_k, W_v)</h2>
         <div className="flex flex-row gap-6 overflow-x-auto pb-2 items-start">
           <MatrixGrid
-            title={`Input X (Batch ${b})`}
+            title={<span>Input X (Batch {b})</span>}
             rows={config.T}
             cols={config.C}
             rowPrefix="t"
@@ -140,7 +151,7 @@ export function AttentionVisualizer() {
           />
 
           <MatrixGrid
-            title="Weight Wq"
+            title={<span>Weight W<sub>q</sub></span>}
             rows={config.C}
             cols={config.D}
             rowPrefix="c"
@@ -151,7 +162,7 @@ export function AttentionVisualizer() {
           />
 
           <MatrixGrid
-            title="Weight Wk"
+            title={<span>Weight W<sub>k</sub></span>}
             rows={config.C}
             cols={config.D}
             rowPrefix="c"
@@ -162,7 +173,7 @@ export function AttentionVisualizer() {
           />
 
           <MatrixGrid
-            title="Weight Wv"
+            title={<span>Weight W<sub>v</sub></span>}
             rows={config.C}
             cols={config.D}
             rowPrefix="c"
@@ -179,7 +190,7 @@ export function AttentionVisualizer() {
         <h2 className="text-lg font-bold text-gray-700 border-b pb-1">2. Projected Tensors: Query Q, Key K, Value V</h2>
         <div className="flex flex-row gap-6 overflow-x-auto pb-2 items-start">
           <MatrixGrid
-            title={`Query Q = X · Wq (Batch ${b})`}
+            title={<span>Query Q = X · W<sub>q</sub> (Batch {b})</span>}
             rows={config.T}
             cols={config.D}
             rowPrefix="t"
@@ -190,7 +201,7 @@ export function AttentionVisualizer() {
           />
 
           <MatrixGrid
-            title={`Key K = X · Wk (Batch ${b})`}
+            title={<span>Key K = X · W<sub>k</sub> (Batch {b})</span>}
             rows={config.T}
             cols={config.D}
             rowPrefix="t"
@@ -201,7 +212,7 @@ export function AttentionVisualizer() {
           />
 
           <MatrixGrid
-            title={`Value V = X · Wv (Batch ${b})`}
+            title={<span>Value V = X · W<sub>v</sub> (Batch {b})</span>}
             rows={config.T}
             cols={config.D}
             rowPrefix="t"
@@ -218,7 +229,7 @@ export function AttentionVisualizer() {
         <h2 className="text-lg font-bold text-gray-700 border-b pb-1">3. Attention Calculation (S, Softmax A, Output O)</h2>
         <div className="flex flex-row gap-6 overflow-x-auto pb-2 items-start">
           <MatrixGrid
-            title={`Scores S = Q·Kᵀ / √D (Batch ${b})`}
+            title={<span>Scores S = Q · K<sup>T</sup> / √D (Batch {b})</span>}
             rows={config.T}
             cols={config.T}
             rowPrefix="q_t"
@@ -230,7 +241,7 @@ export function AttentionVisualizer() {
           />
 
           <MatrixGrid
-            title={`Attention Weights A = softmax(S) (Batch ${b})`}
+            title={<span>Attention Weights A = softmax(S) (Batch {b})</span>}
             rows={config.T}
             cols={config.T}
             rowPrefix="q_t"
@@ -242,7 +253,7 @@ export function AttentionVisualizer() {
           />
 
           <MatrixGrid
-            title={`Output O = A · V (Batch ${b})`}
+            title={<span>Output O = A · V (Batch {b})</span>}
             rows={config.T}
             cols={config.D}
             rowPrefix="t"
