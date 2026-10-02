@@ -1,9 +1,19 @@
 import React, { useState } from 'react';
 import { Conv2dVisualizer } from './pages/Conv2dVisualizer';
 import { Conv1dVisualizer } from './pages/Conv1dVisualizer';
+import { AttentionVisualizer } from './pages/AttentionVisualizer';
 
 function App() {
   const [activeComponent, setActiveComponent] = useState(null);
+
+  const getHeaderTitle = () => {
+    switch (activeComponent) {
+      case 'conv2d': return 'Conv2d';
+      case 'conv1d': return 'Conv1d';
+      case 'attention': return 'Attention Head';
+      default: return '';
+    }
+  };
 
   if (!activeComponent) {
     return (
@@ -13,7 +23,7 @@ function App() {
           Interactive web-based visualizers for standard machine-learning components. Understand the exact relationship between inputs, parameters, weights, and outputs.
         </p>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full max-w-2xl">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 w-full max-w-4xl">
           <button
             onClick={() => setActiveComponent('conv2d')}
             className="bg-white border border-gray-200 hover:border-blue-400 hover:shadow-lg transition-all rounded-xl p-6 flex flex-col items-center text-center group"
@@ -29,6 +39,14 @@ function App() {
             <h2 className="text-2xl font-bold text-gray-800 group-hover:text-blue-600 mb-2">Conv1d</h2>
             <p className="text-sm text-gray-500">1D Spatial Convolution (e.g., sequences)</p>
           </button>
+
+          <button
+            onClick={() => setActiveComponent('attention')}
+            className="bg-white border border-gray-200 hover:border-blue-400 hover:shadow-lg transition-all rounded-xl p-6 flex flex-col items-center text-center group"
+          >
+            <h2 className="text-2xl font-bold text-gray-800 group-hover:text-blue-600 mb-2">Attention Head</h2>
+            <p className="text-sm text-gray-500">Single Attention Head (Q, K, V, Softmax, Output)</p>
+          </button>
         </div>
       </div>
     );
@@ -39,7 +57,7 @@ function App() {
       <header className="bg-white border-b px-8 py-4 flex items-center justify-between sticky top-0 z-10 shadow-sm">
         <div>
           <h1 className="text-xl font-bold tracking-tight text-blue-900">
-            {activeComponent === 'conv2d' ? 'Conv2d' : 'Conv1d'} Visualizer
+            {getHeaderTitle()} Visualizer
           </h1>
         </div>
         <button
@@ -53,6 +71,7 @@ function App() {
       <main className="pb-24">
         {activeComponent === 'conv2d' && <Conv2dVisualizer />}
         {activeComponent === 'conv1d' && <Conv1dVisualizer />}
+        {activeComponent === 'attention' && <AttentionVisualizer />}
       </main>
     </div>
   );
